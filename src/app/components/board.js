@@ -1,8 +1,11 @@
-'use strict';
 import BoardElementModel from '../mobx-model/boardElementModel'
 import BoardElement from './boardElement.js';
+import SnakeModel from "../mobx-model/snakeModel";
 import { inject, observer } from 'mobx-react';
-import Snake from './snake'
+import { applySnapshot, onSnapshot } from "mobx-state-tree"
+
+let states = []
+let currentFrame = -1
 
 const directions = {
     UP: 'up',
@@ -10,19 +13,18 @@ const directions = {
     LEFT: 'left',
     RIGHT: 'right'
 }
-const boundX = 15
-const boundY = 15
+const boundX = 7
+const boundY = 7
 const board = new Array(boundX)
-const snakePositions = new Array()
 const movementInterval = 1000
 let pointPosition
 let movementIntervalId
 let randomPointX, randomPointY
 let currentDirection
-let headPosition
 
-let scoreModel
-let controlsModel
+let scoreModel;
+let controlsModel;
+let snakeModel = SnakeModel.create({alive: true, direction: 'right', isDead: false, positions: []});
 
 let boardElementModels = new Array(boundX)
 
@@ -36,15 +38,12 @@ class Board extends React.Component {
         movementIntervalId = setInterval(snakeMovement, movementInterval);
         for(let x = 0; x < boundX; x++){
             board[x] = new Array(boundY)
-            boardElementModels
-        [x] = new Array(boundY)
+            boardElementModels[x] = new Array(boundY)
         }
         for(let x = 0; x < boundX; x++){
             for(let y = 0; y < boundY; y++){
-                boardElementModels
-            [x][y] = BoardElementModel.create({type: 'empty'})
-                board[x][y] = <BoardElement selected={false} boardElementModel={boardElementModels
-            [x][y]}></BoardElement>;
+                boardElementModels[x][y] = BoardElementModel.create({type: 'empty', boardPositionX: x, boardPositionY: y})
+                board[x][y] = <BoardElement boardElementModel={boardElementModels[x][y]}></BoardElement>;
             }
         }
     }
@@ -71,25 +70,28 @@ function keyboardEventHandler(event){
     }
 }
 function placeInitialSnake() {
-    snakePositions.push([4,4])
-    snakePositions.push([4,5])
-    console.log(snakePositions[snakePositions.length -1])
     boardElementModels[4][4].setType('body')
     boardElementModels[4][5].setType('body')
-    headPosition = [4,5]
     currentDirection = directions.RIGHT
+    snakeModel.addPosition(boardElementModels[4][4])
+    snakeModel.addPosition(boardElementModels[4][5])
 }
 function boardBody(board) {
     return <div>{board.map((row, i) => <div key={i}>{row}</div>)}</div>
 }
 function snakeMovement() {
-    if(currentDirection && controlsModel.isPaused() === false){
+    console.log(`snake has ${states.length} states`)
+    if(currentDirection && controlsModel.isPaused() === false && controlsModel.isGoingBackwards() === false){
         evaluateMovement()
+    }
+    else if(controlsModel.isGoingBackwards() === true){
+        previousState()
     }
 }
 
 function evaluateMovement() {
-    let temporal = [headPosition[0], headPosition[1]]
+    //console.log(`antes: ${snakeModel.getHeadPosition().getBoardPositionX()}, ${snakeModel.getHeadPosition().getBoardPositionY()}`)
+    let temporal = [snakeModel.getHeadPosition().getBoardPositionX(), snakeModel.getHeadPosition().getBoardPositionY()];
     if(currentDirection === directions.UP) {
         temporal[0] -= 1
     }
@@ -103,16 +105,16 @@ function evaluateMovement() {
         temporal[1] += 1
     }
     compensateBoardBounds(temporal)
-    evaluateClash(temporal, snakePositions)
-    headPosition = temporal
-    snakePositions.push(temporal)
+    //console.log(`despues: ${snakeModel.getHeadPosition().getBoardPositionX()}, ${snakeModel.getHeadPosition().getBoardPositionY()}`)
+    evaluateClash(temporal, snakeModel.getPositions())
+    snakeModel.addPosition(boardElementModels[temporal[0]][temporal[1]])
     if(canEat(temporal, pointPosition)){
         eatPoint()
         placeRandomPoint()
     }
     else{
         makeMovement()
-    }  
+    }
 }
 function compensateBoardBounds(temporal) {
     if(temporal[0] === -1) {
@@ -143,17 +145,16 @@ function canEat(temporal, pointPosition)
     return (temporal[0] === pointPosition[0]) && (temporal[1] === pointPosition[1])
 }
 function makeMovement() {
-    let lastIndex  = snakePositions.length -1
     // changing head element color
-    boardElementModels[snakePositions[lastIndex][0]][snakePositions[lastIndex][1]].setType('body')
+    snakeModel.getHeadPosition().setType('body')
     // changing tail element color
-    boardElementModels[snakePositions[0][0]][snakePositions[0][1]].setType('empty')
-    snakePositions.shift()
+    snakeModel.getPositions()[0].setType('empty')
+    snakeModel.removeLastElement()
 }
 function placeRandomPoint() {
     randomPointX = Math.floor(Math.random() * boundX);
     randomPointY = Math.floor(Math.random() * boundY);
-    if(isPositionOccupied(randomPointX, randomPointY, snakePositions)){
+    if(isPositionOccupied(randomPointX, randomPointY, snakeModel.getPositions())){
         placeRandomPoint()
     }
     else{
@@ -162,12 +163,33 @@ function placeRandomPoint() {
     }
 }
 function isPositionOccupied(randomPointX, randomPointY, snakePositions) {
-    const possiblePoint = snakePositions.find((v) => v[0] === randomPointX && v[1] === randomPointY)
+    const possiblePoint = snakePositions.find((v) => v === boardElementModels[randomPointX][randomPointY])
     if(possiblePoint)
     {
         return true
     }
     return false
+}
+
+onSnapshot(snakeModel, snapshot => {
+    if (currentFrame === states.length - 1) {
+        currentFrame++
+        states.push(snapshot)
+    }
+})
+
+export function previousState() {
+    console.log(`left ${states.length}`)
+    if (currentFrame === 0) return
+    currentFrame--
+    applySnapshot(snakeModel, states[currentFrame])
+    console.log(snakeModel)
+}
+
+export function nextState() {
+    if (currentFrame === states.length - 1) return
+    currentFrame++
+    applySnapshot(snakeModel, states[currentFrame])
 }
 
 export default Board
