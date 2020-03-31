@@ -3,7 +3,6 @@ import { inject, observer } from 'mobx-react';
 class Controls extends React.Component {
     constructor(props){
         super(props)
-        console.log(this.props)
     }
 
     render() {

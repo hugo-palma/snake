@@ -1,17 +1,25 @@
 import {detach, isAlive, types} from 'mobx-state-tree';
-import BoardElementModel from "./boardElementModel";
 
 const SnakeModel = types.model('SnakeModel', {
     alive: types.boolean,
     direction: types.enumeration('direction', ['up', 'right', 'down', 'left']),
-    isDead: types.boolean,
-    positions: types.array(BoardElementModel),
+    positions: types.array(types.array(types.number)),
+    pointPosition: types.array(types.number)
 }).actions(self => ({
-    addPosition(boardElementModel) {
-        self.positions.push(boardElementModel)
+    addPosition(newPosition) {
+        self.positions.push(newPosition)
+    },
+    addPointPosition(newPointPosition) {
+        self.pointPosition = newPointPosition
     },
     removeLastElement() {
         detach(self.positions[0])
+    },
+    setDirection(newDirection) {
+        self.direction = newDirection
+    },
+    setpointPosition(newPointPosition) {
+        self.direction = newPointPosition
     }
 })).views(self => ({
     getDirection() {
@@ -23,6 +31,12 @@ const SnakeModel = types.model('SnakeModel', {
     getPositions() {
         return self.positions
     },
+    getPointPosition() {
+        return self.pointPosition
+    },
+    getLength() {
+        return self.positions.length
+    }
 }));
 
 export default SnakeModel
