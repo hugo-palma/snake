@@ -6,7 +6,7 @@ class Controls extends React.Component {
     }
 
     render() {
-        return <div>
+        return <div className='container'>
             <button onClick={this.props.controlsModel.toggleBackwards}><div className="fas fa-backward fa-4x" style={{padding: '5px'}}/></button>
             <button onClick={this.props.controlsModel.togglePause}><div className="fas fa-play fa-4x" style={(this.props.controlsModel.isPaused() ? divStylePaused : divStyleDefault)}/></button>
         </div>
