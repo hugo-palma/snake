@@ -29,12 +29,12 @@ function getDivStyle(type) {
         width: '35px',
         height: '35px',
         textAlign: 'center',
-        backgroundColor: type === types.BODY ? 'black' : 'lightgreen'
+        backgroundColor: type === types.BODY ? 'black' : 'lightgreen',
     }
 }
 function getDivContent(type) {
     if(type === types.POINT)
-    return <img height='100%' width='100%' src='./app/resources/red-virus.svg'/>
+    return <img height='100%' width='100%'  style={{ verticalAlign: 'baseline'}} src='./app/resources/red-virus.svg'/>
     else{
         return ''
     }

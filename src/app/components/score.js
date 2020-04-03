@@ -9,8 +9,8 @@ class Score extends React.Component{
     }
     render() {
         const { scoreModel } = this.props;
-        return <div>
-            <p>Score: {scoreModel.status()}</p>
+        return <div className={'container'}>
+            <h2>Score: {scoreModel.status()}</h2>
             {scoreModel.getUser() ? <div><p>User: {scoreModel.getUser()}</p></div> : <div><input id="userInput" onChange = { this.handleInputChange.bind(this) } placeholder="example@gmail.com"/><button onClick={this.handleClick.bind(this)}>Save</button></div>}
         </div>
     }
