@@ -1,7 +1,9 @@
 import { types } from 'mobx-state-tree'
 
-const BoardElementModel = types.model({
-    type: types.enumeration('types', ['empty', 'haed', 'body', 'point'])
+const BoardElementModel = types.model('BoardElementModel',{
+    type: types.enumeration('types', ['empty', 'haed', 'body', 'point']),
+    boardPositionX: types.number,
+    boardPositionY: types.number
 }).actions(self => ({
     setType(newType) {
         self.type = newType
@@ -9,6 +11,12 @@ const BoardElementModel = types.model({
 })).views(self => ({
     getType() {
         return self.type
+    },
+    getBoardPositionX() {
+        return self.boardPositionX
+    },
+    getBoardPositionY() {
+        return self.boardPositionY
     }
 }))
 

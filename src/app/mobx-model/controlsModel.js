@@ -5,6 +5,7 @@ const ControlsModel = types.model('ControlsModel', {
     backwards: types.boolean
 }).actions(self => ({
     togglePause() {
+        self.backwards = false
         self.paused = !self.paused
     },
     toggleBackwards() {
