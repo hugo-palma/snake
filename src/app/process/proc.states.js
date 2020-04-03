@@ -17,7 +17,7 @@ function applyPreviousState(currentStateIndex, states, snakeModel) {
 }
 
 function addSnapshotToStates(currentStateIndex, snapshot, states) {
-    if(currentStateIndex === states.length - 1) {
+    if(currentStateIndex) {
         if(snapshot) {
             currentStateIndex++;
             states.push(snapshot)

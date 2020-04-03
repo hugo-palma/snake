@@ -9,16 +9,9 @@ const types = {
 class BoardElement extends React.Component {
     constructor(props) {
         super(props);
-        this.boardElementModel = this.props.boardElementModel;
-        this.state = {
-            selected: false
-        }
     }
     render() {
         return <div style= { getDivStyle(this.props.boardElementModel.getType())}>{ getDivContent(this.props.boardElementModel.getType()) }</div>
-    }
-    renderRandomPoint() {
-        const typeOfPoint = this.props.boardElementModel.isRandomPoint()
     }
 }
 
@@ -34,7 +27,7 @@ function getDivStyle(type) {
 }
 function getDivContent(type) {
     if(type === types.POINT)
-    return <img height='100%' width='100%'  style={{ verticalAlign: 'baseline'}} src='./app/resources/red-virus.svg'/>
+    return <img height='100%' width='100%' alt='virus' style={{ verticalAlign: 'baseline'}} src='./app/resources/red-virus.svg'/>;
     else{
         return ''
     }

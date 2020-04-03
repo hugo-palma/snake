@@ -1,7 +1,6 @@
 //import request from 'request-promise'
 import axios from 'axios';
 import regeneratorRuntime from 'regenerator-runtime'
-import HighScoresTableModel from "../mobx-model/highScoresTableModel";
 
 const API_URL = 'http://localhost:3000/api';
 const HIGH_SCORE_URL = '/highScore';
@@ -17,10 +16,12 @@ async function postHighScore(email, scoreValue, states){
         scoreValue: scoreValue,
         states
     };
-    console.log('sending high score');
     const response  = await axios.post(API_URL + HIGH_SCORE_URL, highScoreRequest);
     if(response.data){
         return response.data
     }
 }
-export default { getHighScores, postHighScore }
+function refreshScore(snakeModel, scoreModel) {
+    scoreModel.setScore(snakeModel.getLength());
+}
+export default { getHighScores, postHighScore, refreshScore }
