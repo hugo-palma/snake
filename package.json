@@ -17,7 +17,7 @@
   "author": "Hugo Palma",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-loader": "^8.0.6",
     "mobx": "^5.15.4",
